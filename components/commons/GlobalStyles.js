@@ -1,0 +1,81 @@
+/* fonts */
+export const FontFamily = {
+  leagueSpartanMedium: "LeagueSpartan-Medium",
+  leagueSpartanRegular: "LeagueSpartan-Regular",
+  leagueSpartanBold: "LeagueSpartan-Bold",
+  leagueSpartanSemiBold: "LeagueSpartan-SemiBold",
+  subtitle1: "Roboto-Medium",
+  smallSizeBodyRegular: "Poppins-Regular",
+  smallSizeBodyMedium: "Poppins-Medium",
+  subtitle2Unbold: "Roboto-Regular",
+  robotoBold: "Roboto-Bold",
+  leagueSpartanExtraBold: "LeagueSpartan-ExtraBold",
+  leagueSpartanLight: "LeagueSpartan-Light",
+  leagueSpartanThin: "LeagueSpartan-Thin",
+};
+/* font sizes */
+export const FontSize = {
+  caption_size: 12,
+  subtitle1_size: 16,
+  size_5xl: 24,
+  size_6xs: 7,
+  size_mini: 15,
+  overline_size: 10,
+  size_29xl: 48,
+  size_smi: 13,
+  smallSizeBodyRegular_size: 14,
+  size_4xs: 9,
+  size_5xs: 8,
+  size_13xl: 32,
+  size_xl: 20,
+  size_2xs: 11,
+};
+/* Colors */
+export const Color = {
+  colorGainsboro_100: "#e0e0e2",
+  colorGainsboro_200: "#d9d9d9",
+  blackWhiteWhite: "#fff",
+  colorDeepskyblue: "#00afef",
+  blackWhiteBlack: "#000",
+  textLight: "#a0a5b6",
+  colorDarkgray_100: "#9ea1b1",
+  colorDarkgray_200: "#9e9898",
+  colorCornflowerblue_100: "#3d9ae2",
+  blueBlue500: "#2196f3",
+  primaryEnable: "#01a2f9",
+  colorCornflowerblue_200: "#0095e5",
+  colorCornflowerblue_300: "#1e81ce",
+  colorFirebrick: "#c23d34",
+  colorSilver_100: "#cec8c8",
+  textInactive: "#bdc0cc",
+  colorDarkolivegreen: "#193c10",
+  textMedium: "#494e50",
+  greyGrey800: "#424242",
+  backgroundEnable: "#f5f7fa",
+  colorWhitesmoke_100: "#f2edec",
+  greyGrey200: "#eee",
+  colorSeagreen: "#36855a",
+  colorGray_100: "#0e0d0d",
+  colorGray_200: "#000002",
+  colorLavender: "#e5e7f0",
+  colorLightskyblue: "#90c0e5",
+  colorDarkorange: "rgba(238, 118, 0, 0.81)",
+  colorDimgray_100: "#695e5e",
+  colorDimgray_200: "#4f4f53",
+  colorLightgray_100: "#d3d1d8",
+  colorKhaki: "#cdcf50",
+  colorDeeppink: "#ef008f",
+};
+/* Paddings */
+export const Padding = {
+  p_5xs: 8,
+  p_9xs: 4,
+};
+/* border radiuses */
+export const Border = {
+  br_xl: 20,
+  br_3xs: 10,
+  br_8xs_5: 5,
+  br_9xs: 4,
+  br_5xs: 8,
+};
