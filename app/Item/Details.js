@@ -1,174 +1,154 @@
+import React, { useEffect, useState } from "react";
 import {
-  FlatList,
+  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  ImageBackground,
-  Dimensions,
-  Image,
-  TouchableOpacity,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
-import React from "react";
-import commonStyles from "../../components/commons/styles/generic";
+import { Surface, Button } from "react-native-paper";
 import axios from "../../request/requests";
+import OnboardingContext from "../context/OnboardingContext"; // Access user token
+import authenticatedReq from "../../request/requests";
 
-const Details = ({ route, navigation }) => {
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const { itemId } = route.params;
-  const [item, setItem] = React.useState(null);
-  React.useEffect(() => {
-    const fetchItems = async (url = `/report-missing-item/${itemId}`) => {
+const ScanDetails = ({ route, navigation }) => {
+  const { code } = route.params; // Get unique id from route parameters
+  const { user, setIsSignedIn } = React.useContext(OnboardingContext); // Get user for token access
+  const [details, setDetails] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDetails = async () => {
       try {
-        const response = await axios.get(url);
-        console.log(`The data retuend is ${JSON.stringify(response?.data)}`);
-        setItem(response?.data);
+        const response = await authenticatedReq.get(`/upload/single/${code}`, {
+          headers: {
+            Authorization: `Bearer ${user.token.access}`,
+          },
+        });
+        setDetails(response.data);
       } catch (error) {
-        console.error("Error fetching items:", error);
+        if (error.response.status === 401) {
+          setIsSignedIn(false);
+        }
+        console.log("Error", "Failed to load drug details. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
-    fetchItems();
-  }, []);
+
+    fetchDetails();
+  }, [code, user.token.access]);
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#ff4201" />
+      </SafeAreaView>
+    );
+  }
+
   return (
-    <ScrollView
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.container}
-    >
-      <ImageBackground
-        source={require("../../assets/images/gradientbg.png")} // Adjust the path to your image
-        style={styles.background}
-      >
-        <Image
-          style={styles.itemPic}
-          resizeMode="contain"
-          source={item?.picture}
-        />
-      </ImageBackground>
-      <View style={styles.detailsContainer}>
-        <Text style={[commonStyles.bold, styles.itemName]}>{item?.name}</Text>
-        <Text
-          style={[commonStyles.orangeText, styles.postedBy, commonStyles.bold]}
-        >
-          Posted by {item?.owner ?? item?.finder}
-          {/* // if the owner is the one who posted it, his name would be there, otherwise the reporters name */}
-        </Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>{details.name}</Text>
+          <Text style={styles.code}>Code: {details.unique_code}</Text>
+        </View>
 
-      <View style={[commonStyles.spacedContainer]}>
-        <Text style={{ fontWeight: "500", fontSize: 18 }}>Color</Text>
-        <Text style={[styles.colorTxt, styles.colorBtn]}>
-          {item?.color ?? "Black"}
-        </Text>
+        <Surface style={styles.surface}>
+          <Text style={styles.label}>Status:</Text>
+          <Text style={styles.statusText}>
+            {new Date(details.manufacture_date) < new Date(details.expiry_date)
+              ? "Valid"
+              : "Expired"}
+          </Text>
+        </Surface>
 
-        <TouchableOpacity
+        <Surface style={styles.surface}>
+          <Text style={styles.label}>Manufacturer:</Text>
+          <Text style={styles.value}>{details.manufacturer}</Text>
+        </Surface>
+
+        <Surface style={styles.surface}>
+          <Text style={styles.label}>Batch Number:</Text>
+          <Text style={styles.value}>{details.batch_number}</Text>
+        </Surface>
+
+        <Surface style={styles.surface}>
+          <Text style={styles.label}>Manufactur Date:</Text>
+          <Text style={styles.value}>{details.manufacture_date}</Text>
+        </Surface>
+
+        <Surface style={styles.surface}>
+          <Text style={styles.label}>Expiry Date:</Text>
+          <Text style={styles.value}>{details.expiry_date}</Text>
+        </Surface>
+
+        <Button
           mode="contained"
-          style={styles.recoverBtn}
-          onPress={() => navigation.navigate("Chat")}
+          style={styles.reportButton}
+          onPress={() => navigation.navigate("Report", { code })}
         >
-          <Text style={styles.recoverBtnTxt}>Claim Item</Text>
-        </TouchableOpacity>
-      </View>
-      <View style={styles.descriptionContainer}>
-        <Text style={[styles.descriptionTitle, commonStyles.bold]}>
-          Description
-        </Text>
-        <Text style={styles.description}>{item?.description}</Text>
-      </View>
-    </ScrollView>
+          Report an Issue
+        </Button>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
-const { width, height } = Dimensions.get("screen");
+export default ScanDetails;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    paddingTop: 0,
-  },
-  searchBar: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#fff",
-    borderWidth: 0.5,
-    borderColor: "#999",
-    alignSelf: "center",
-    marginTop: 20,
-  },
-
-  itemName: {
-    fontSize: 25,
-    marginTop: 20,
-    fontWeight: "500",
-  },
-
-  background: {
-    width: width,
-    alignSelf: "center",
-    height: height / 2.5,
+    flex: 1,
     padding: 15,
-    marginBottom: 40,
+    backgroundColor: "#fff",
   },
-  itemPic: {
-    height: "100%",
-    width: "100%",
-    alignSelf: "center",
-    marginTop: 50,
-    elevation: 5,
-  },
-  detailsContainer: {
-    padding: 0,
+  header: {
     marginBottom: 20,
   },
-  postedBy: {
-    fontSize: 15,
-  },
-  colorBtn: {
-    borderWidth: 1,
-    maxHeight: 30,
-    borderColor: "#ff4201",
-    padding: 5,
-    borderRadius: 20,
-    width: " 25%",
-  },
-  colorTxt: {
-    textAlign: "center",
-  },
-  availableBtn: {
-    borderWidth: 1,
-    padding: 5,
-    width: "50%",
-    borderRadius: 15,
-    borderColor: "green",
-    backgroundColor: "green",
-  },
-  availableTxt: {
-    color: "#fff",
-    textAlign: "center",
-  },
-  descriptionTitle: {
-    fontSize: 18,
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
     color: "#ff4201",
   },
-  descriptionContainer: {
-    marginTop: 0,
+  code: {
+    fontSize: 16,
+    color: "#666",
   },
-  description: {
+  surface: {
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "#f8f8f8",
+  },
+  label: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  value: {
     fontSize: 16,
     marginTop: 5,
+    textTransform: "capitalize",
   },
-  recoverBtn: {
-    backgroundColor: "#ff6200",
-    padding: 7,
-    borderRadius: 20,
-    marginBottom: 30,
-    width: "50%",
-    alignSelf: "center",
-    // marginTop: 40,
-  },
-  recoverBtnTxt: {
-    color: "#fff",
+  status: {
+    fontSize: 20,
     fontWeight: "bold",
-    textAlign: "center",
+    textTransform: "capitalize",
+  },
+  valid: {
+    color: "#50C878", // Green for valid
+  },
+  fake: {
+    color: "#ff4201", // Orange for fake
+  },
+  expired: {
+    color: "red", // Red for expired
+  },
+  reportButton: {
+    marginTop: 30,
+    backgroundColor: "#ff4201",
   },
 });
-export default Details;

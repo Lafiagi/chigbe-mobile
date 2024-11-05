@@ -15,8 +15,7 @@ import OnboardingContext from "./app/context/OnboardingContext";
 import ItemList from "./app/Item/ItemList";
 import Details from "./app/Item/Details";
 import FilterScreen from "./app/Commons/FilterScreen";
-import SavedItemList from "./app/Item/SavedItemList";
-import ItemByCategoryList from "./app/Item/ItemByCategoryList";
+import SavedItemList from "./app/Item/ScanPage";
 import EditProfile from "./app/Profile/EditProfile";
 import Notifications from "./app/Notifications/Notifications";
 import MissingItem from "./app/Report/MIssingItem";
@@ -27,6 +26,12 @@ import PaymentOptions from "./app/Susbscribe/PaymentOptions";
 import PaymentSuccess from "./app/Susbscribe/PaymentSuccess";
 import ChatScreen from "./app/Messages/Chat";
 import OnboardingScreen from "./app/Onboarding";
+import ReportIssue from "./app/Item/Report";
+import ScanScreen from "./app/Item/ScanPage";
+import EnterpriseHome from "./app/EnterpriseHome/Tabs/Tabs";
+import BulkUpload from "./app/EnterpriseHome/Components/BulkUpload";
+import ProductList from "./app/EnterpriseHome/Components/ProductList";
+import AddProduct from "./app/EnterpriseHome/Components/AddProduct";
 
 const Stack = createNativeStackNavigator();
 
@@ -71,11 +76,19 @@ function App() {
             <OnboardingScreen />
           ) : isSignedIn ? (
             <Stack.Navigator screenOptions={{ headerShown: false }}>
-              <Stack.Screen
-                options={{ headerShown: false, statusBarHidden: true }}
-                name="Home"
-                component={Home}
-              />
+              {user?.user_type === "enterprise" ? (
+                <Stack.Screen
+                  options={{ headerShown: false, statusBarHidden: true }}
+                  name="Home"
+                  component={EnterpriseHome}
+                />
+              ) : (
+                <Stack.Screen
+                  options={{ headerShown: false, statusBarHidden: true }}
+                  name="Home"
+                  component={Home}
+                />
+              )}
 
               <Stack.Screen
                 options={{ headerShown: false, statusBarHidden: true }}
@@ -102,8 +115,8 @@ function App() {
               />
               <Stack.Screen
                 options={{ headerShown: true, statusBarHidden: true }}
-                name="ItemByCategoryList"
-                component={ItemByCategoryList}
+                name="Report"
+                component={ReportIssue}
               />
 
               <Stack.Screen
@@ -119,8 +132,8 @@ function App() {
               />
               <Stack.Screen
                 options={{ headerShown: false, statusBarHidden: true }}
-                name="MissingItem"
-                component={MissingItem}
+                name="ScanPage"
+                component={ScanScreen}
               />
               <Stack.Screen
                 options={{ headerShown: false, statusBarHidden: true }}
@@ -154,6 +167,18 @@ function App() {
                 options={{ headerShown: false, statusBarHidden: true }}
                 name="Chat"
                 component={ChatScreen}
+              />
+
+              <Stack.Screen
+                options={{ headerShown: false, statusBarHidden: true }}
+                name="ProductUpload"
+                component={BulkUpload}
+              />
+
+              <Stack.Screen
+                options={{ headerShown: false, statusBarHidden: true }}
+                name="Add Product"
+                component={AddProduct}
               />
               {/* Chat */}
             </Stack.Navigator>

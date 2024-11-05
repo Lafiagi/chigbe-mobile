@@ -1,4 +1,6 @@
-export function currencyFormat(num, dp=2) {
+import { PixelRatio } from "react-native";
+
+export function currencyFormat(num, dp = 2) {
   return parseFloat(num)
     .toFixed(dp)
     .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
@@ -41,7 +43,8 @@ export function extractTimeFromDate(dateTimeString) {
   return `${formattedHours}:${formattedMinutes} ${period}`;
 }
 
-export function computeVAT(num) {
-  const VAT = num * 0.075;
-  return parseFloat(VAT);
+export function getFontSize(originalSize) {
+  const fontScale = PixelRatio.getFontScale();
+  const responsiveSize = originalSize / fontScale;
+  return responsiveSize;
 }

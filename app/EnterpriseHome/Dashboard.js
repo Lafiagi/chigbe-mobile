@@ -1,54 +1,57 @@
 import React, { useEffect, useState } from "react";
 import {
-  Image,
   SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
   View,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import { IconButton } from "react-native-paper";
 import commonStyles from "../../components/commons/styles/generic";
-import { IconButton, Searchbar, Button, Surface } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import axios from "../../request/requests"; // Import axios
-import { ViewAll } from "./Components/ViewAll";
-import { ItemList } from "./Components/ItemList";
+
+import AnalyticsCard from "../../components/commons/Dashboard/AnalyticsCard";
+import ProductsCard from "./Components/ProductsCard";
+import OnboardingContext from "../context/OnboardingContext";
+import authenticatedReq from "../../request/requests";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Dashboard = ({ navigation }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [missingItems, setMissingItems] = useState([]);
-  const [foundItems, setFounditems] = useState([]);
+  const [foundItems, setFoundItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user, setIsSignedIn } = React.useContext(OnboardingContext);
+
+  const fetchDrugs = async () => {
+    setLoading(true);
+    try {
+      const response = await authenticatedReq.get("/upload/single", {
+        headers: { Authorization: `Bearer ${user?.token?.access}` },
+      });
+      setFoundItems(response.data); // Assuming response contains a `drugs` array
+      setLoading(false);
+      console.log(`Added the data ${JSON.stringify(response?.data)}`);
+    } catch (error) {
+      if (error?.response.status === 401) {
+        setIsSignedIn(false);
+      }
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Fetch reported missing items
-    axios
-      .get("/report-missing-item/")
-      .then((response) => {
-        setMissingItems(response.data.results); // Store the fetched items
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching missing items:", error);
-        setLoading(false);
-      });
+    fetchDrugs();
+  }, [user?.token?.access]);
 
-    axios
-      .get("/report-found-item/")
-      .then((response) => {
-        setFounditems(response.data.results); // Store the fetched items
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching missing items:", error);
-        setLoading(false);
-      });
-  }, []);
-
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchDrugs();
+    }, [])
+  );
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* Notifications and Profile */}
         <View
           style={[commonStyles.spacedContainer, styles.profilePicContainer]}
         >
@@ -59,75 +62,54 @@ const Dashboard = ({ navigation }) => {
             size={30}
             onPress={() => navigation.navigate("Notifications")}
           />
-          <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
-            <Image
-              style={styles.profilePic}
-              resizeMode="contain"
-              source={require("../../assets/images/profile.png")}
-            />
-          </TouchableOpacity>
+          <IconButton
+            icon={"plus"}
+            iconColor={"#ff4201"}
+            containerColor="#eee"
+            size={30}
+            onPress={() => navigation.navigate("Add Product")}
+          />
         </View>
+
+        {/* Welcome and Summary */}
         <View>
           <Text style={[commonStyles.boldOrangeText, styles.welcomeText]}>
-            Welcome Jamee
+            Welcome {user?.full_name.split(" ")[0]}
           </Text>
-          <Text style={styles.info}>Scan, verify, protect.</Text>
+          <Text style={styles.info}>Stop counterfeits, save lives.</Text>
         </View>
-        <View style={[commonStyles.spacedContainer, styles.searchContainer]}>
-          <Searchbar
-            placeholder="Search"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={commonStyles.searchBar}
-            cursorColor={"#ff6200"}
-            iconColor="#ff4201"
-            inputStyle={{
-              minHeight: 0,
-            }}
-          />
-          {/* <TouchableOpacity
-            onPress={() => navigation.navigate("Filter")}
-            mode="contained"
-            style={[styles.filterBtn, commonStyles.centerFlexContainer]}
-          >
-            <MaterialCommunityIcons
-              name="filter-variant"
-              size={20}
-              color={"#fff"}
-            />
-            <Text style={[commonStyles.bold, styles.filterText]}>Filters</Text>
-          </TouchableOpacity> */}
+        <Text style={styles.summary}>Analytics</Text>
+        <View
+          style={[
+            commonStyles.spacedContainer,
+            commonStyles.wrapped,
+            { marginTop: 10 },
+          ]}
+        >
+          <AnalyticsCard title={"Total Scanned"} amount={134} />
+          <AnalyticsCard title={"Total Authentic"} amount={100} />
+          <AnalyticsCard title={"Total Fakes"} amount={34} />
+          <AnalyticsCard title={"Total Expired"} amount={34} />
         </View>
-        <View>
-          <Surface style={styles.surface}>
-            <Text style={[styles.subscribeText, commonStyles.bold]}>
-              Subscribe now to access the report feature
-            </Text>
-            <Button
-              style={styles.subscribeBtn}
-              mode="elevated"
-              onPress={() => navigation.navigate("Susbscribe")}
-            >
-              <Text style={[commonStyles.orangeText, commonStyles.bold]}>
-                Subscribe Now
-              </Text>
-            </Button>
-          </Surface>
+
+        {/* Recent Drugs List */}
+        <View style={{ marginTop: 10 }}>
+          <Text style={styles.info}>Recent Drugs</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#ff4201" />
+          ) : (
+            foundItems?.map((drug, index) => (
+              <ProductsCard
+                key={index}
+                expiryDate={drug.expiry_date}
+                name={`${drug.name}, ${drug.dosage}`}
+                code={drug.unique_code}
+                id={drug?.id}
+                navigation={navigation}
+              />
+            ))
+          )}
         </View>
-        <ViewAll
-          title={"Top Missing items"}
-          onPress={() => navigation.navigate("ItemList")}
-        />
-        <ItemList
-          navigation={navigation}
-          data={missingItems}
-          loading={loading}
-        />
-        <ViewAll
-          title={"Top Reports"}
-          onPress={() => console.log("View all top")}
-        />
-        <ItemList navigation={navigation} data={foundItems} loading={loading} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -146,54 +128,13 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 60,
   },
-  info: { fontSize: 16, color: "#888", marginTop: 5, fontWeight: "500" },
+  info: { fontSize: 17, color: "#666", marginTop: 5, fontWeight: "500" },
   welcomeText: {
     fontSize: 25,
     color: "#ff4201",
   },
-  searchContainer: {
-    marginTop: 20,
-    marginBottom: 10,
-  },
-  surface: {
-    padding: 10,
-    height: 90,
-    width: "100%",
+  summary: {
     marginTop: 10,
-    backgroundColor: "#ff4201",
-    borderRadius: 20,
-  },
-  subscribeText: {
-    color: "#fff",
-    fontSize: 16,
-    textAlign: "center",
-  },
-  subscribeBtn: {
-    width: "50%",
-    marginTop: 8,
-    padding: 0,
-    borderRadius: 40,
-  },
-  title: {
-    fontSize: 19,
-  },
-  topMissingItems: {
-    marginTop: 10,
-  },
-  viewAll: {
-    fontSize: 17,
-  },
-  viewAllContainer: {
-    marginTop: 5,
-  },
-  filterBtn: {
-    backgroundColor: "#ff4201",
-    padding: 5,
-    borderRadius: 20,
-    width: "25%",
-    alignItems: "center",
-  },
-  filterText: {
-    color: "#fff",
+    fontSize: 30,
   },
 });

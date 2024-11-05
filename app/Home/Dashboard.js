@@ -10,42 +10,18 @@ import {
 } from "react-native";
 import commonStyles from "../../components/commons/styles/generic";
 import { IconButton, Searchbar, Button, Surface } from "react-native-paper";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import axios from "../../request/requests"; // Import axios
-import { ViewAll } from "./Components/ViewAll";
-import { ItemList } from "./Components/ItemList";
+import AnalyticsCard from "../../components/commons/Dashboard/AnalyticsCard";
+import ScanHistoryCard from "../../components/commons/Dashboard/ScanHistoryCard";
+import { getFontSize } from "../../utils/utils";
+import OnboardingContext from "../context/OnboardingContext";
 
 const Dashboard = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [missingItems, setMissingItems] = useState([]);
   const [foundItems, setFounditems] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Fetch reported missing items
-    axios
-      .get("/report-missing-item/")
-      .then((response) => {
-        setMissingItems(response.data.results); // Store the fetched items
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching missing items:", error);
-        setLoading(false);
-      });
-
-    axios
-      .get("/report-found-item/")
-      .then((response) => {
-        setFounditems(response.data.results); // Store the fetched items
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Error fetching missing items:", error);
-        setLoading(false);
-      });
-  }, []);
-
+  const { user } = React.useContext(OnboardingContext);
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -69,38 +45,69 @@ const Dashboard = ({ navigation }) => {
         </View>
         <View>
           <Text style={[commonStyles.boldOrangeText, styles.welcomeText]}>
-            Welcome Jamee
+            Welcome {user?.full_name.split(" ")[0]}
           </Text>
-          <Text style={styles.info}>Scan, verify, protect.</Text>
+          <Text style={styles.motto}>Stop counterfeits, save lives.</Text>
         </View>
-        <View style={[commonStyles.spacedContainer, styles.searchContainer]}>
-          <Searchbar
-            placeholder="Search"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={commonStyles.searchBar}
-            cursorColor={"#ff6200"}
-            iconColor="#ff4201"
-            inputStyle={{
-              minHeight: 0,
-            }}
-          />
+
+        <View style={styles.header}>
+          <Text style={styles.info}>You've scanned 10 products in total.</Text>
         </View>
-        <View>
-          <Surface style={styles.surface}>
-            <Text style={[styles.subscribeText, commonStyles.bold]}>
-              Subscribe to access the premium features.
-            </Text>
-            <Button
-              style={styles.subscribeBtn}
-              mode="elevated"
-              onPress={() => navigation.navigate("Susbscribe")}
-            >
-              <Text style={[commonStyles.orangeText, commonStyles.bold]}>
-                Subscribe Now
-              </Text>
-            </Button>
-          </Surface>
+
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate("ScanPage")}
+          style={styles.scanButton}
+        >
+          Verify a Drug
+        </Button>
+
+        <View style={{ marginTop: 10 }}>
+          <Text style={styles.info}>Recent Scans</Text>
+          <View>
+            <ScanHistoryCard
+              date={"12 mar 24"}
+              name={"Ezamor Paracetamol, 50 mg"}
+              code={"XX2CEXXWQAPL09"}
+              status={"valid"}
+              navigation={navigation}
+            />
+            <ScanHistoryCard
+              date={"20 Oct 24"}
+              name={"Ibuprofen, 200 mg"}
+              code={"XX2CEXXWQAPL09"}
+              status={"valid"}
+              navigation={navigation}
+            />
+            <ScanHistoryCard
+              date={"31 Jun 24"}
+              name={"Ciprofloxacin, 200 mg"}
+              code={"LLXX09PWRET"}
+              status={"valid"}
+              navigation={navigation}
+            />
+            <ScanHistoryCard
+              date={"12 mar 24"}
+              name={"Ezamor Paracetamol, 50 mg"}
+              code={"XX2CEXXWQAPL09"}
+              status={"fake"}
+              navigation={navigation}
+            />
+            <ScanHistoryCard
+              date={"20 Oct 24"}
+              name={"Ibuprofen, 200 mg"}
+              code={"XX2CEXXWQAPL09"}
+              status={"Expired"}
+              navigation={navigation}
+            />
+            <ScanHistoryCard
+              date={"31 Jun 24"}
+              name={"Ciprofloxacin, 200 mg"}
+              code={"LLXX09PWRET"}
+              status={"Valid"}
+              navigation={navigation}
+            />
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -120,7 +127,20 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 60,
   },
-  info: { fontSize: 16, color: "#888", marginTop: 5, fontWeight: "500" },
+  info: { fontSize: 17, color: "#666", marginTop: 5, fontWeight: "500" },
+  motto: {
+    fontSize: getFontSize(19),
+    color: "#222",
+    marginTop: 5,
+    fontWeight: "bold",
+    fontStyle: "italic",
+  },
+  totalScans: {
+    fontSize: 17,
+    color: "#666",
+    marginTop: 5,
+    fontWeight: "bold",
+  },
   welcomeText: {
     fontSize: 25,
     color: "#ff4201",
@@ -128,14 +148,6 @@ const styles = StyleSheet.create({
   searchContainer: {
     marginTop: 20,
     marginBottom: 10,
-  },
-  surface: {
-    padding: 10,
-    minHeight: 90,
-    width: "100%",
-    marginTop: 10,
-    backgroundColor: "#ff4201",
-    borderRadius: 20,
   },
   subscribeText: {
     color: "#fff",
@@ -160,14 +172,18 @@ const styles = StyleSheet.create({
   viewAllContainer: {
     marginTop: 5,
   },
-  filterBtn: {
+  scanButton: {
+    marginTop: 20,
     backgroundColor: "#ff4201",
-    padding: 5,
-    borderRadius: 20,
-    width: "25%",
-    alignItems: "center",
+    paddingVertical: 0,
+    // borderRadius: 10,
   },
-  filterText: {
-    color: "#fff",
+  summary: {
+    marginTop: 10,
+    fontSize: 30,
+    // textAlign: "center",
+  },
+  date: {
+    fontWeight: "bold",
   },
 });

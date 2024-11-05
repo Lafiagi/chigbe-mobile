@@ -47,6 +47,9 @@ const commonStyles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "#999",
   },
+  wrapped: {
+    flexWrap: "wrap",
+  },
 });
 
 export default commonStyles;

@@ -108,7 +108,7 @@ const EditProfile = ({ navigation }) => {
         />
 
         <Button mode="contained" onPress={handleLogin} style={styles.button}>
-          <Text style={[commonStyles.bold, styles.login]}>Create</Text>
+          <Text style={[commonStyles.bold, styles.login]}>Update Profile</Text>
         </Button>
       </View>
     </SafeAreaView>

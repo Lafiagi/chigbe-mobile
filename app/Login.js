@@ -13,19 +13,24 @@ import LoginRegisterLayout from "../components/layouts/LoginRegisterLayout";
 import OnboardingContext from "./context/OnboardingContext";
 import api from "../request/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import Toast from "react-native-simple-toast";
 const Login = ({ navigation }) => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [loading, setLoading] = React.useState(false); // State to handle loading state
-  const { setIsSignedIn, isSignedIn } = React.useContext(OnboardingContext);
+  const { setIsSignedIn, isSignedIn, setUser } =
+    React.useContext(OnboardingContext);
   const [errorMessage, setErrorMessage] = React.useState(null);
   // Email validation function using regex
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+  const generatedAccount = algosdk.generateAccount();
+const passphrase = algosdk.secretKeyToMnemonic(generatedAccount.sk);
+console.log(`My address: ${generatedAccount.addr}`);
+console.log(`My passphrase: ${passphrase}`);
 
   // Check if both fields are filled and if email is valid
   const isFormValid = email !== "" && password !== "" && isValidEmail(email);
@@ -34,22 +39,24 @@ const Login = ({ navigation }) => {
   const handleLogin = async () => {
     setLoading(true); // Set loading state to true
     setErrorMessage(null);
-    setIsSignedIn(true);
 
     try {
       const response = await api.post("/signin", {
         email: email,
         password: password,
       });
-      setIsSignedIn(true);
-
       const { token } = response.data; // Assuming the API returns a token
 
       await AsyncStorage.setItem("authToken", JSON.stringify(token));
       await AsyncStorage.setItem("user", JSON.stringify(response?.data));
+      setUser(response?.data);
+      console.log(response.data);
+
+      Toast.show("Login Successful!", Toast.LONG);
+      setIsSignedIn(true);
     } catch (error) {
       setErrorMessage(error?.response?.data?.detail);
-      console.error("Login failed", error.response || error.message);
+      Toast.show(error?.response?.data?.detail, Toast.LONG);
     } finally {
       setLoading(false); // Stop loading state
     }

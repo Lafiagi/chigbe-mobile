@@ -10,12 +10,20 @@ import {
 import commonStyles from "../../components/commons/styles/generic";
 import OrangeButton from "../../components/commons/OrangeButton";
 import { Ionicons } from "@expo/vector-icons";
+import OnboardingContext from "../context/OnboardingContext";
+import React from "react";
 
 const EditProfileMenuItem = ({ itemName, itemIcon, navigation }) => {
+  const { setIsSignedIn } = React.useContext(OnboardingContext);
+
   return (
     <TouchableOpacity
       style={[commonStyles.spacedContainer, styles.menuItem]}
-      onPress={() => navigation.navigate(itemName)}
+      onPress={() => {
+        itemName.toLowerCase() === "logout"
+          ? setIsSignedIn(false)
+          : navigation.navigate(itemName);
+      }}
     >
       <View style={[commonStyles.spacedContainer]}>
         <Ionicons name={itemIcon} size={20} color={"#666"} />
@@ -28,10 +36,8 @@ const EditProfileMenuItem = ({ itemName, itemIcon, navigation }) => {
 const Profile = ({ navigation }) => {
   const menuItems = [
     { name: "Security", icon: "shield-outline" },
-    { name: "Saved", icon: "bookmark-outline" },
     { name: "Subscription", icon: "card-outline" },
     { name: "Customer Support", icon: "chatbubble-outline" },
-    { name: "Share the app", icon: "share-social-outline" },
     { name: "Member ID", icon: "person-circle-outline" },
     { name: "Logout", icon: "log-out-outline" },
   ];
@@ -103,6 +109,8 @@ const styles = StyleSheet.create({
   },
   list: {
     marginTop: 20,
+    flex: 1,
+    justifyContent: "center",
   },
   menuItem: {
     padding: 10,

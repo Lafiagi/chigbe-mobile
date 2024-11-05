@@ -2,7 +2,7 @@ import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const authenticatedReq = axios.create({
-  baseURL: "http:/192.168.0.101:8001/api/v1/core",
+  baseURL: "http:/192.168.69.54:8000/api/v1/core",
   timeout: 5000,
 });
 

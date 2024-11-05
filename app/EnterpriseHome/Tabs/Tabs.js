@@ -3,18 +3,14 @@ import React from "react";
 import { View, Text, Dimensions } from "react-native"; // Import any other necessary components
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
-import Login from "../../Login";
 import Dashboard from "../Dashboard";
-import Notifications from "../../Notifications/Notifications";
-import Messages from "../../Messages/Messages";
 import Profile from "../../Profile/Profile";
-import ReportMenu from "../../Report/ReportMenu";
-import Wallet from "../../Wallet/Wallet";
+import AddProduct from "../Components/AddProduct";
 
 const Tab = createBottomTabNavigator();
 const { width, height } = Dimensions.get("window");
 
-const Home = () => {
+const EnterpriseHome = () => {
   return (
     <View
       style={{
@@ -39,35 +35,17 @@ const Home = () => {
           }}
         />
         <Tab.Screen
-          name="Messages"
-          component={Messages}
+          name="Add Product"
+          component={AddProduct}
           options={{
-            tabBarIcon: ({ color, size }) => (
-              <AntDesign name="message1" size={size} color={color} />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Report Item"
-          component={ReportMenu}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="search-outline" size={size} color={color} />
-            ),
-          }}
-        />
-
-        <Tab.Screen
-          name="Wallet"
-          component={Wallet}
-          options={{
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="wallet-outline" size={size} color={color} />
-            ),
             headerShown: false,
+            statusBarHidden: true,
+            tabBarIcon: ({ color, size }) => (
+              <AntDesign name="plus" size={size} color={color} />
+            ),
           }}
         />
+
         <Tab.Screen
           name="Profile"
           component={Profile}
@@ -82,4 +60,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default EnterpriseHome;

@@ -10,6 +10,7 @@ import Messages from "../../Messages/Messages";
 import Profile from "../../Profile/Profile";
 import ReportMenu from "../../Report/ReportMenu";
 import Wallet from "../../Wallet/Wallet";
+import ScanScreen from "../../Item/ScanPage";
 
 const Tab = createBottomTabNavigator();
 const { width, height } = Dimensions.get("window");
@@ -38,7 +39,7 @@ const Home = () => {
             ),
           }}
         />
-        <Tab.Screen
+        {/* <Tab.Screen
           name="Messages"
           component={Messages}
           options={{
@@ -46,19 +47,19 @@ const Home = () => {
               <AntDesign name="message1" size={size} color={color} />
             ),
           }}
-        />
+        /> */}
 
         <Tab.Screen
-          name="Report Item"
-          component={ReportMenu}
+          name="Scan Drug"
+          component={ScanScreen}
           options={{
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="search-outline" size={size} color={color} />
+              <Ionicons name="qr-code" size={size} color={color} />
             ),
           }}
         />
 
-        <Tab.Screen
+        {/* <Tab.Screen
           name="Wallet"
           component={Wallet}
           options={{
@@ -67,7 +68,7 @@ const Home = () => {
             ),
             headerShown: false,
           }}
-        />
+        /> */}
         <Tab.Screen
           name="Profile"
           component={Profile}
